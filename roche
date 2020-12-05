@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+ProgName=$(basename $0)
+  
+sub_help(){
+    echo "Usage: $ProgName <subcommand> [options]"
+    echo "Subcommands:"
+    echo "    init   Create a function file in the current directory"
+    echo "    build  Build a docker container using the default function image"
+    echo "    gen    Generate a Dockerfile for an external build pipeline"
+    echo ""
+}
+
+sub_init(){
+    echo -e ${function_template} > functions.rs
+}
+
+sub_build(){
+    declare -r imagename=$1
+    
+    if [ "${imagename}" == "" ]; then
+        echo "Please provide an image tag registry/namespace/imagename:version"
+        exit 1
+    fi
+    
+    echo -e ${docker_build} | docker build -t ${imagename} -f- .
+}
+
+sub_gen(){
+    echo -e ${docker_build} > Dockerfile
+}
+
+declare -r function_template=$(cat <<-EOM
+    pub fn handler() -> tide::Server<()> {\n    
+        let mut api = tide::new();\n
+        api.at("/").get(|_| async { Ok("Hello, world!") });\n
+        api\n
+    }\n
+EOM
+)
+
+declare -r docker_build=$(cat <<-EOM
+FROM number9/roche-baseimage as builder\n\n
+COPY functions.rs /app-build/src/app/\n\n
+RUN cargo build --release\n\n
+FROM alpine\n\n
+RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
+WORKDIR "/app"\n\n
+COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/release/roche-service ./\n\n
+USER rocheuser\n\n
+ENV PORT 8080\n\n
+EXPOSE 8080\n\n
+CMD ["./run.sh"]\n\n
+EOM
+)
+
+declare -r subcommand=$1
+case $subcommand in
+    "" | "-h" | "--help")
+        sub_help
+        ;;
+    *)
+        shift
+        sub_${subcommand} $@
+        if [ $? = 127 ]; then
+            echo "Error: '$subcommand' is not a known subcommand." >&2
+            echo "       Run '$ProgName --help' for a list of known subcommands." >&2
+            exit 1
+        fi
+        ;;
+esac
