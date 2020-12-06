@@ -15,6 +15,8 @@ However these things come with a trade off as build times are not ideal for rapi
 roche addresses this short coming by providing a function as a service pattern for [tide](https://github.com/http-rs/tide) that reduces build times to seconds and enables developers to focus on business logic allowing for the speedy delivery of blazing fast and energy efficient software.
 It leverages the [nesting feature of tide](https://github.com/http-rs/tide/blob/main/examples/nested.rs) so all that is required to be developed is a handler while the application infrastructure is provided by prebuilt docker containers.
 
+Once the base image is downloaded build times are around 5s for debug and 30s for Release.
+
 ## pre-reqs
 
 1. A bash terminal 

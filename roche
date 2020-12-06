@@ -5,9 +5,10 @@ ProgName=$(basename $0)
 sub_help(){
     echo "Usage: $ProgName <subcommand> [options]"
     echo "Subcommands:"
-    echo "    init   Create a function file in the current directory"
-    echo "    build  Build a docker container using the default function image"
-    echo "    gen    Generate a Dockerfile for an external build pipeline"
+    echo "    init     Create a function file in the current directory"
+    echo "    build    Build a docker container using the debug function image"
+    echo "    release  Build a docker container using the release function image"
+    echo "    gen      Generate a release Dockerfile for an external build pipeline"
     echo ""
 }
 
@@ -19,7 +20,18 @@ sub_build(){
     declare -r imagename=$1
     
     if [ "${imagename}" == "" ]; then
-        echo "Please provide an image tag registry/namespace/imagename:version"
+        echo "Please provide an image tag e.g. registry/namespace/imagename:version"
+        exit 1
+    fi
+    
+    echo -e ${docker_debug_build} | docker build -t ${imagename} -f- .
+}
+
+sub_release(){
+    declare -r imagename=$1
+    
+    if [ "${imagename}" == "" ]; then
+        echo "Please provide an image tag e.g. registry/namespace/imagename:version"
         exit 1
     fi
     
@@ -47,6 +59,20 @@ FROM alpine\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
 COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/release/roche-service ./\n\n
+USER rocheuser\n\n
+ENV PORT 8080\n\n
+EXPOSE 8080\n\n
+CMD ["./run.sh"]\n\n
+EOM
+)
+declare -r docker_debug_build=$(cat <<-EOM
+FROM number9/roche-baseimage-debug as builder\n\n
+COPY functions.rs /app-build/src/app/\n\n
+RUN cargo build\n\n
+FROM alpine\n\n
+RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
+WORKDIR "/app"\n\n
+COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service ./\n\n
 USER rocheuser\n\n
 ENV PORT 8080\n\n
 EXPOSE 8080\n\n
