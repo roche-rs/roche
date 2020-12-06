@@ -26,7 +26,11 @@ Once the base image is downloaded build times are around 5s for debug and 30s fo
 ## install
 
 roche is currently a bash script while we work out some of the ergonomics.
-To install just copy the roche file to a location in your $PATH.
+To install just copy the [roche](https://github.com/No9/roche/blob/main/roche) file to a location in your $PATH.
+On *nix machines make sure it's executable by executing:
+```
+$ chmod +x roche
+```
 
 ## usage
 
