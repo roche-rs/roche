@@ -27,7 +27,7 @@ Once the base image is downloaded build times are around 5s for debug and 30s fo
 
 roche is currently a bash script while we work out some of the ergonomics.
 To install just copy the [roche](https://github.com/No9/roche/blob/main/roche) file to a location in your $PATH.
-On *nix machines make sure it's executable by executing:
+On *nix machines make sure it's executable by running:
 ```
 $ chmod +x roche
 ```
@@ -38,7 +38,8 @@ $ chmod +x roche
 ```
 $ roche init
 ```
-This creates a single function file that you can add functionality into.
+This creates a single function file that you can add functionality into. 
+
 ```rust
 pub fn handler() -> tide::Server<()> {    
     let mut api = tide::new();
@@ -46,6 +47,10 @@ pub fn handler() -> tide::Server<()> {
     api
 }
 ```
+That's all you need!
+Support for external libs will be added in the future probably through custome base images.
+
+
 2. Build the function image and give it a docker formated id.
 ```
 $ roche build registry/namespace/imagename:version
@@ -61,5 +66,5 @@ docker run -p 8080:8080 registry/namespace/imagename:version
 # knative
 $ kn service create roche-function --image registry/namespace/imagename:version
 # ibmcloud
-$ ibmcloud ce app 
+$ ibmcloud ce app create -n roche-function --image registry/namespace/imagename:version
 ```
