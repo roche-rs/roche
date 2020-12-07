@@ -17,25 +17,31 @@ sub_init(){
 }
 
 sub_build(){
-    declare -r imagename=$1
+    declare imagetag=$1
     
-    if [ "${imagename}" == "" ]; then
-        echo "Please provide an image tag e.g. registry/namespace/imagename:version"
-        exit 1
+    if [ "${imagetag}" == "" ]; then
+        echo "No image tag provided."
+        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
+        imagename=${PWD##*/}
+        imagetag=docker.io/$namespace/dev-$imagename:latest
+        echo "Going to use: $imagetag"
     fi
     
-    echo -e ${docker_debug_build} | docker build -t ${imagename} -f- .
+    echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
 }
 
 sub_release(){
-    declare -r imagename=$1
+    declare imagetag=$1
     
-    if [ "${imagename}" == "" ]; then
-        echo "Please provide an image tag e.g. registry/namespace/imagename:version"
-        exit 1
+    if [ "${imagetag}" == "" ]; then
+        echo "No image tag provided."
+        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
+        imagename=${PWD##*/}
+        imagetag=docker.io/$namespace/$imagename:latest
+        echo "Going to use: $imagetag"
     fi
     
-    echo -e ${docker_build} | docker build -t ${imagename} -f- .
+    echo -e ${docker_build} | docker build -t ${imagetag} -f- .
 }
 
 sub_gen(){
