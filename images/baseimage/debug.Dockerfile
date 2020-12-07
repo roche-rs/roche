@@ -4,8 +4,9 @@ COPY . /app-build
 
 WORKDIR "/app-build"
 
+ENV RUSTFLAGS="-C target-feature=-crt-static" 
 RUN \
-  apk add --no-cache musl-dev && \
+  apk add --no-cache musl-dev  openssl-dev && \
   cargo build \
  && echo "#!/bin/sh" > run.sh \
  && bin=$(find ./target/debug -maxdepth 1 -perm -111 -type f| head -n 1) \

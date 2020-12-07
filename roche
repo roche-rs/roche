@@ -62,6 +62,7 @@ FROM number9/roche-baseimage as builder\n\n
 COPY functions.rs /app-build/src/app/\n\n
 RUN cargo build --release\n\n
 FROM alpine\n\n
+RUN apk add --no-cache libgcc\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
 COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/release/roche-service ./\n\n
@@ -76,6 +77,7 @@ FROM number9/roche-baseimage-debug as builder\n\n
 COPY functions.rs /app-build/src/app/\n\n
 RUN cargo build\n\n
 FROM alpine\n\n
+RUN apk add --no-cache libgcc\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
 COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service ./\n\n

@@ -11,3 +11,4 @@ async-std = { version = "1.6.5", features = ["attributes"] }
 tide = "0.15.0"
 serde = "1.0.117"
 serde_urlencoded = "0.7.0"
+surf = "2.1.0"
