@@ -1,6 +1,6 @@
 # Service with Test Example
 
-In this directory run the following commands:
+In this directory run the following command:
 
 ```
 $ roche build-test
