@@ -85,3 +85,5 @@ If you would like to run the build process as part of a CI/CD chain then the fol
 ```
 $ roche gen
 ```
+
+A standard cargo lib project with tests is implemented in the examples/full directory
