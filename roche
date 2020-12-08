@@ -114,13 +114,13 @@ EOM
 )
 declare -r docker_debug_build=$(cat <<-EOM
 FROM number9/roche-baseimage-debug as builder\n\n
-COPY functions.rs /app-build/src/app/\n\n
+COPY functions.rs .env* /app-build/src/app/\n\n
 RUN cargo build\n\n
 FROM alpine\n\n
 RUN apk add --no-cache libgcc\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
-COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service ./\n\n
+COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service /app-build/src/app/.env* ./\n\n
 USER rocheuser\n\n
 ENV PORT 8080\n\n
 EXPOSE 8080\n\n
