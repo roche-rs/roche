@@ -1,9 +1,11 @@
 # Surf Example
 
+In this directory run the following commands:
+
 ```
 $ roche build
 
-$ docker run -p 8080:8080 YOUR_USER/surf-json
+$ docker run -p 8080:8080 YOUR_USER/dev-surf
 tide::log Logger started
     level Info
       Running server on: http://localhost:8080/
