@@ -9,11 +9,16 @@ sub_help(){
     echo "    build    Build a docker container using the debug function image"
     echo "    release  Build a docker container using the release function image"
     echo "    gen      Generate a release Dockerfile for an external build pipeline"
+    echo "    fmt      Run rustfmt against functions.rs to make it pretty"
     echo ""
 }
 
 sub_init(){
     echo -e ${function_template} > functions.rs
+}
+
+sub_fmt() {
+    rustfmt --edition=2018 functions.rs
 }
 
 sub_build(){
