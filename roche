@@ -5,11 +5,13 @@ ProgName=$(basename $0)
 sub_help(){
     echo "Usage: $ProgName <subcommand> [options]"
     echo "Subcommands:"
-    echo "    init     Create a function file in the current directory"
-    echo "    build    Build a docker container using the debug function image"
-    echo "    release  Build a docker container using the release function image"
-    echo "    gen      Generate a release Dockerfile for an external build pipeline"
-    echo "    fmt      Run rustfmt against functions.rs to make it pretty"
+    echo "    init          Create a function file in the current directory"
+    echo "    build         Build a docker container using the debug function image"
+    echo "    build-proj    Build container assuming functions.rs in src"
+    echo "    build-test    Build container assuming functions.rs in src"
+    echo "    release       Build a docker container using the release function image"
+    echo "    gen           Generate a release Dockerfile for an external build pipeline"
+    echo "    fmt           Run rustfmt against functions.rs to make it pretty"
     echo ""
 }
 
@@ -19,6 +21,39 @@ sub_init(){
 
 sub_fmt() {
     rustfmt --edition=2018 functions.rs
+}
+
+sub_build-test() {
+    declare imagetag=$1
+    
+    if [ "${imagetag}" == "" ]; then
+        echo "No image tag provided."
+        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
+        imagename=${PWD##*/}
+        imagetag=docker.io/$namespace/dev-$imagename:latest
+        echo "Going to use: $imagetag"
+    fi
+    cd src
+    echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
+    cd ..
+    docker run -p 8080:8080 $imagetag &
+    cargo test
+    docker kill $(docker ps | grep number9/dev-full:latest | cut -d' ' -f1)
+}
+
+sub_build-proj() {
+    declare imagetag=$1
+    
+    if [ "${imagetag}" == "" ]; then
+        echo "No image tag provided."
+        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
+        imagename=${PWD##*/}
+        imagetag=docker.io/$namespace/dev-$imagename:latest
+        echo "Going to use: $imagetag"
+    fi
+    cd src
+    echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
+    cd ..
 }
 
 sub_build(){

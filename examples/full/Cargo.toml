@@ -1,0 +1,11 @@
+[package]
+name = "full"
+version = "0.1.0"
+authors = ["Anton Whalley <anton@venshare.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-std = { version = "1.6.5", features = ["attributes"] }
+surf = "2.1.0"
