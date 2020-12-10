@@ -82,7 +82,7 @@ getdevimagetag() {
         fi
         
         imagename=${PWD##*/}
-        imagetag=docker.io/$namespace/dev-$imagename:latest
+        imagetag=$namespace/dev-$imagename:latest
         echo "Going to use: $imagetag"
     fi
 }
@@ -102,7 +102,7 @@ getimagetag() {
         fi
         
         imagename=${PWD##*/}
-        imagetag=docker.io/$namespace/$imagename:latest
+        imagetag=$namespace/$imagename:latest
         echo "Going to use: $imagetag"
     fi
 }
