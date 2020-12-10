@@ -24,15 +24,7 @@ sub_fmt() {
 }
 
 sub_build-test() {
-    declare imagetag=$1
-    
-    if [ "${imagetag}" == "" ]; then
-        echo "No image tag provided."
-        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
-        imagename=${PWD##*/}
-        imagetag=docker.io/$namespace/dev-$imagename:latest
-        echo "Going to use: $imagetag"
-    fi
+    getimagetag
     cd src
     echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
     cd ..
@@ -42,50 +34,45 @@ sub_build-test() {
 }
 
 sub_build-proj() {
-    declare imagetag=$1
-    
-    if [ "${imagetag}" == "" ]; then
-        echo "No image tag provided."
-        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
-        imagename=${PWD##*/}
-        imagetag=docker.io/$namespace/dev-$imagename:latest
-        echo "Going to use: $imagetag"
-    fi
+    getimagetag
     cd src
     echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
     cd ..
 }
 
 sub_build(){
-    declare imagetag=$1
-    
-    if [ "${imagetag}" == "" ]; then
-        echo "No image tag provided."
-        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
-        imagename=${PWD##*/}
-        imagetag=docker.io/$namespace/dev-$imagename:latest
-        echo "Going to use: $imagetag"
-    fi
-    
+    getimagetag
     echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
 }
 
 sub_release(){
-    declare imagetag=$1
-    
-    if [ "${imagetag}" == "" ]; then
-        echo "No image tag provided."
-        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
-        imagename=${PWD##*/}
-        imagetag=docker.io/$namespace/$imagename:latest
-        echo "Going to use: $imagetag"
-    fi
-    
+    getimagetag
     echo -e ${docker_build} | docker build -t ${imagetag} -f- .
 }
 
 sub_gen(){
     echo -e ${docker_build} > Dockerfile
+}
+
+
+getimagetag() {
+    imagetag=$1
+    if [ "${imagetag}" == "" ]; then
+        echo "No image tag provided."
+        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
+        if [ "${namespace}" == "" ]; then
+            namespace=$(podman login --get-login)
+        fi
+        if [ "${namespace}" == "" ]; then
+            echo "Failed to get username from docker or podman."
+            echo "Please login to one of them for this script to work"
+            exit 1
+        fi
+        
+        imagename=${PWD##*/}
+        imagetag=docker.io/$namespace/dev-$imagename:latest
+        echo "Going to use: $imagetag"
+    fi
 }
 
 declare -r function_template=$(cat <<-EOM
@@ -112,21 +99,32 @@ EXPOSE 8080\n\n
 CMD ["./run.sh"]\n\n
 EOM
 )
-declare -r docker_debug_build=$(cat <<-EOM
+declare docker_debug_build=$(cat <<-EOM
 FROM number9/roche-baseimage-debug as builder\n\n
-COPY functions.rs .env* /app-build/src/app/\n\n
+COPY . /app-build/src/app/\n\n
 RUN cargo build\n\n
 FROM alpine\n\n
 RUN apk add --no-cache libgcc\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
-COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service /app-build/src/app/.env* ./\n\n
+EOM
+)
+declare env_string
+
+if [[ -f "./.env" ]]; then
+    env_string="COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service /app-build/src/app/.env* ./\n\n"
+else
+    env_string="COPY --from=builder --chown=rocheuser /app-build/run.sh /app-build/Cargo.toml /app-build/target/debug/roche-service ./\n\n"
+fi
+
+declare -r tail=$(cat <<-EOM 
 USER rocheuser\n\n
 ENV PORT 8080\n\n
 EXPOSE 8080\n\n
 CMD ["./run.sh"]\n\n
 EOM
 )
+docker_debug_build=$docker_debug_build$env_string$tail
 
 declare -r subcommand=$1
 case $subcommand in

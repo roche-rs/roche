@@ -13,3 +13,4 @@ serde = "1.0.117"
 serde_urlencoded = "0.7.0"
 surf = "2.1.0"
 dotenv = "0.15.0"
+uuid = { version = "0.8", features = ["v4"] }
