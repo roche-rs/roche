@@ -24,7 +24,7 @@ sub_fmt() {
 }
 
 sub_build-test() {
-    getimagetag
+    getdevimagetag
     cd src
     echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
     cd ..
@@ -34,14 +34,14 @@ sub_build-test() {
 }
 
 sub_build-proj() {
-    getimagetag
+    getdevimagetag
     cd src
     echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
     cd ..
 }
 
 sub_build(){
-    getimagetag
+    getdevimagetag
     echo -e ${docker_debug_build} | docker build -t ${imagetag} -f- .
 }
 
@@ -55,7 +55,7 @@ sub_gen(){
 }
 
 
-getimagetag() {
+getdevimagetag() {
     imagetag=$1
     if [ "${imagetag}" == "" ]; then
         echo "No image tag provided."
@@ -74,6 +74,27 @@ getimagetag() {
         echo "Going to use: $imagetag"
     fi
 }
+
+getimagetag() {
+    imagetag=$1
+    if [ "${imagetag}" == "" ]; then
+        echo "No image tag provided."
+        namespace=$(cut -d " " -f3 <<< $(docker info | grep Username))
+        if [ "${namespace}" == "" ]; then
+            namespace=$(podman login --get-login)
+        fi
+        if [ "${namespace}" == "" ]; then
+            echo "Failed to get username from docker or podman."
+            echo "Please login to one of them for this script to work"
+            exit 1
+        fi
+        
+        imagename=${PWD##*/}
+        imagetag=docker.io/$namespace/$imagename:latest
+        echo "Going to use: $imagetag"
+    fi
+}
+
 
 declare -r function_template=$(cat <<-EOM
     pub fn handler() -> tide::Server<()> {\n    
