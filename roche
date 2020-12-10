@@ -121,7 +121,7 @@ declare -r docker_build=$(cat <<-EOM
 FROM quay.io/roche/baseimage as builder\n\n
 COPY functions.rs /app-build/src/app/\n\n
 RUN cargo build --release\n\n
-FROM alpine\n\n
+FROM quay.io/roche/alpine:3.12\n\n
 RUN apk add --no-cache libgcc\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
@@ -136,7 +136,7 @@ declare docker_debug_build=$(cat <<-EOM
 FROM quay.io/roche/dev-baseimage as builder\n\n
 COPY . /app-build/src/app/\n\n
 RUN cargo build\n\n
-FROM alpine\n\n
+FROM quay.io/roche/alpine:3.12\n\n
 RUN apk add --no-cache libgcc\n\n
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser\n\n
 WORKDIR "/app"\n\n
