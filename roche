@@ -10,6 +10,8 @@ sub_help(){
     echo "    build-proj    Build container assuming functions.rs in src"
     echo "    build-test    Build container assuming functions.rs in src"
     echo "    release       Build a docker container using the release function image"
+    echo "    run           Runs the function in the current directory"
+    echo "    kill          Stops the container associated with the current directory"
     echo "    gen           Generate a release Dockerfile for an external build pipeline"
     echo "    fmt           Run rustfmt against functions.rs to make it pretty"
     echo ""
@@ -21,6 +23,16 @@ sub_init(){
 
 sub_fmt() {
     rustfmt --edition=2018 functions.rs
+}
+
+sub_run() {
+    getdevimagetag
+    docker run -p 8080:8080 $imagetag &
+}
+
+sub_kill() {
+    getdevimagetag
+    docker kill $(docker ps | grep $imagetag | cut -d' ' -f1)
 }
 
 sub_build-test() {
