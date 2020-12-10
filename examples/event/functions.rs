@@ -18,7 +18,7 @@ pub fn handler() -> tide::Server<()> {
         });
         let body = Body::from_json(&json)?;
 
-        let response = Response::builder(203)
+        let response = Response::builder(200)
             .body(body)
             .header("Ce-Id", msguuid.to_string())
             .header("Ce-specversion", "0.3")
