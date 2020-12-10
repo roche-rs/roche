@@ -30,7 +30,7 @@ sub_build-test() {
     cd ..
     docker run -p 8080:8080 $imagetag &
     cargo test
-    docker kill $(docker ps | grep number9/dev-full:latest | cut -d' ' -f1)
+    docker kill $(docker ps | grep $imagetag | cut -d' ' -f1)
 }
 
 sub_build-proj() {
@@ -106,7 +106,7 @@ EOM
 )
 
 declare -r docker_build=$(cat <<-EOM
-FROM number9/roche-baseimage as builder\n\n
+FROM quay.io/roche/baseimage as builder\n\n
 COPY functions.rs /app-build/src/app/\n\n
 RUN cargo build --release\n\n
 FROM alpine\n\n
@@ -121,7 +121,7 @@ CMD ["./run.sh"]\n\n
 EOM
 )
 declare docker_debug_build=$(cat <<-EOM
-FROM number9/roche-baseimage-debug as builder\n\n
+FROM quay.io/roche/dev-baseimage as builder\n\n
 COPY . /app-build/src/app/\n\n
 RUN cargo build\n\n
 FROM alpine\n\n
