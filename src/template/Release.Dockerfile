@@ -1,7 +1,7 @@
 FROM BASE_IMAGE as builder
 COPY functions.rs /app-build/src/app
 RUN cargo build --release
-FROM quay.io/roche/alpine:3.12
+FROM RUNTIME_IMAGE
 RUN apk add --no-cache libgcc
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser
 WORKDIR "/app"
