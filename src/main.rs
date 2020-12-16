@@ -5,6 +5,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::env;
+use std::process;
 
 #[derive(Debug)]
 pub struct PublicArgs {
@@ -30,7 +32,7 @@ fn main() -> Result<()> {
     const FUNCTION: &str = include_str!("template/function.rs");
     const _RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Local.Dockerfile");
-    let build_image = "quay.io/roche/default:1.0.0";
+    let dev_build_image = "quay.io/roche/dev-default:1.1.0";
     let runtime_image = "quay.io/roche/alpine:3.12";
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
@@ -106,9 +108,25 @@ fn main() -> Result<()> {
         .get_matches();
 
     if matches.is_present("build") {
+        // Check we have a functions.rs to build.
+        let dirname = env::current_dir()?;
+
+        let functionlocation = format!("{}/functions.rs", dirname.display()); 
+        if !Path::new(&functionlocation).exists() {
+            let srcfunction = format!("{}/src/functions.rs", dirname.display()); 
+            if !Path::new(&srcfunction).exists() {
+                println!("Cannot find functions.rs in the current folder or in src subfolder. Exiting");
+                process::exit(1);
+            } else {
+                let srcfolder  = format!("{}/src", dirname.display()); 
+                let srcpath = Path::new(&srcfolder);
+                assert!(env::set_current_dir(&srcpath).is_ok());
+            }
+        }
+
         if let Some(build_matches) = matches.subcommand_matches("build") {
             let tag = format!("-t{}", build_matches.value_of("tag").unwrap());
-            let buildimage = build_matches.value_of("buildimage").unwrap_or(build_image);
+            let buildimage = build_matches.value_of("buildimage").unwrap_or(dev_build_image);
             let runtimeimage = build_matches
                 .value_of("buildimage")
                 .unwrap_or(runtime_image);
