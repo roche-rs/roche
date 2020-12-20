@@ -179,13 +179,13 @@ fn main() -> Result<()> {
             match init_matches.value_of("template").unwrap_or_default() {
                 "default" => {
                     let name = init_matches.value_of("name").map(ToOwned::to_owned);
-                        let branch = match init_matches.value_of("branch").map(ToOwned::to_owned) {
-                            Some(b) => b,
-                            None => String::from("main"),
-                        };
+                    let branch = match init_matches.value_of("branch").map(ToOwned::to_owned) {
+                        Some(b) => b,
+                        None => String::from("main"),
+                    };
 
-                        let force: bool = init_matches.value_of_t("force").unwrap_or(false);
-                        let verbose: bool = init_matches.value_of_t("verbose").unwrap_or(false);
+                    let force: bool = init_matches.value_of_t("force").unwrap_or(false);
+                    let verbose: bool = init_matches.value_of_t("verbose").unwrap_or(false);
 
                     let args_exposed: PublicArgs = PublicArgs {
                         git: default_project.to_string(),
@@ -200,7 +200,6 @@ fn main() -> Result<()> {
                     generate(args)?
                 }
                 "mongodb" => {
-                    
                     //let branch = String::from("main").unwrap();
                     let args_exposed: PublicArgs = PublicArgs {
                         git: mongodb_project.to_string(),
