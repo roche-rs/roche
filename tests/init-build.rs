@@ -57,8 +57,8 @@ fn generate_build_project() {
     assert!(env::set_current_dir(&path).is_ok());
 
     let mut me = env::current_exe().expect("couldn't find current exe");
-    me.pop(); 
-    me.pop(); 
+    me.pop();
+    me.pop();
     me.push("roche");
 
     let mut init_cmd = Command::new(&me)
@@ -71,7 +71,6 @@ fn generate_build_project() {
         .unwrap();
     assert!(init_cmd.wait().is_ok());
 
-    
     let function_folder = format!("{}/{}", path.display(), "generate-build-project");
     println!("{}", function_folder);
     assert!(env::set_current_dir(&function_folder).is_ok());
