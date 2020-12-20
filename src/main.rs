@@ -1,12 +1,15 @@
 use anyhow::Result;
 use cargo_generate::{generate, Args};
 use clap::{App, Arg};
+use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use std::process::{Command, Stdio};
-use std::env;
 use std::process;
+use std::process::{Command, Stdio};
+
+// Public Args look out for this PR landing to fix this
+// https://github.com/ashleygwilliams/cargo-generate/pull/264
 
 #[derive(Debug)]
 pub struct PublicArgs {
@@ -111,14 +114,16 @@ fn main() -> Result<()> {
         // Check we have a functions.rs to build.
         let dirname = env::current_dir()?;
 
-        let functionlocation = format!("{}/functions.rs", dirname.display()); 
+        let functionlocation = format!("{}/functions.rs", dirname.display());
         if !Path::new(&functionlocation).exists() {
-            let srcfunction = format!("{}/src/functions.rs", dirname.display()); 
+            let srcfunction = format!("{}/src/functions.rs", dirname.display());
             if !Path::new(&srcfunction).exists() {
-                println!("Cannot find functions.rs in the current folder or in src subfolder. Exiting");
+                println!(
+                    "Cannot find functions.rs in the current folder or in src subfolder. Exiting"
+                );
                 process::exit(1);
             } else {
-                let srcfolder  = format!("{}/src", dirname.display()); 
+                let srcfolder = format!("{}/src", dirname.display());
                 let srcpath = Path::new(&srcfolder);
                 assert!(env::set_current_dir(&srcpath).is_ok());
             }
@@ -126,7 +131,9 @@ fn main() -> Result<()> {
 
         if let Some(build_matches) = matches.subcommand_matches("build") {
             let tag = format!("-t{}", build_matches.value_of("tag").unwrap());
-            let buildimage = build_matches.value_of("buildimage").unwrap_or(dev_build_image);
+            let buildimage = build_matches
+                .value_of("buildimage")
+                .unwrap_or(dev_build_image);
             let runtimeimage = build_matches
                 .value_of("buildimage")
                 .unwrap_or(runtime_image);
@@ -145,7 +152,7 @@ fn main() -> Result<()> {
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped())
                 .arg("build")
-                .arg(tag)
+                .arg(&tag)
                 .arg("-f-")
                 .arg(".")
                 .spawn()
@@ -156,12 +163,12 @@ fn main() -> Result<()> {
 
             match process.stdin.unwrap().write_all(tmp_docker_file.as_bytes()) {
                 Err(why) => panic!("couldn't write to docker stdin: {}", why),
-                Ok(_) => println!("sent file to docker"),
+                Ok(_) => println!("Roche: Sent file to builder for {}", &tag),
             }
             let mut s = String::new();
             match process.stdout.unwrap().read_to_string(&mut s) {
                 Err(why) => panic!("couldn't read docker stdout: {}", why),
-                Ok(_) => print!("docker responded with:\n{}", s),
+                Ok(_) => print!("Roche: Build complete for {}\n{}", &tag, s),
             }
         }
 
@@ -171,13 +178,21 @@ fn main() -> Result<()> {
         if let Some(init_matches) = matches.subcommand_matches("init") {
             match init_matches.value_of("template").unwrap_or_default() {
                 "default" => {
-                    //let branch = String::from("main").unwrap();
+                    let name = init_matches.value_of("name").map(ToOwned::to_owned);
+                        let branch = match init_matches.value_of("branch").map(ToOwned::to_owned) {
+                            Some(b) => b,
+                            None => String::from("main"),
+                        };
+
+                        let force: bool = init_matches.value_of_t("force").unwrap_or(false);
+                        let verbose: bool = init_matches.value_of_t("verbose").unwrap_or(false);
+
                     let args_exposed: PublicArgs = PublicArgs {
                         git: default_project.to_string(),
-                        branch: Some(String::from("main")),
-                        name: None,
-                        force: true,
-                        verbose: true,
+                        branch: Some(branch),
+                        name,
+                        force,
+                        verbose,
                     };
 
                     let args: Args = unsafe { std::mem::transmute(args_exposed) };
@@ -185,6 +200,7 @@ fn main() -> Result<()> {
                     generate(args)?
                 }
                 "mongodb" => {
+                    
                     //let branch = String::from("main").unwrap();
                     let args_exposed: PublicArgs = PublicArgs {
                         git: mongodb_project.to_string(),
@@ -205,7 +221,7 @@ fn main() -> Result<()> {
                         .contains("https://")
                     {
                         let name = init_matches.value_of("name").map(ToOwned::to_owned);
-                        let branch = match init_matches.value_of("name").map(ToOwned::to_owned) {
+                        let branch = match init_matches.value_of("branch").map(ToOwned::to_owned) {
                             Some(b) => b,
                             None => String::from("main"),
                         };
@@ -219,9 +235,9 @@ fn main() -> Result<()> {
                                 .unwrap_or_default()
                                 .to_string(),
                             branch: Some(branch),
-                            name: name,
-                            force: force,
-                            verbose: verbose,
+                            name,
+                            force,
+                            verbose,
                         };
                         let args: Args = unsafe { std::mem::transmute(args_exposed) };
 
