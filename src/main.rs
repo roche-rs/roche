@@ -154,7 +154,7 @@ fn main() -> Result<()> {
                 .arg("build")
                 .arg(&tag)
                 .arg("-e")
-                .arg("USER=builduser")
+                .arg("USER=$USER")
                 .arg("-f-")
                 .arg(".")
                 .spawn()
