@@ -159,7 +159,10 @@ fn main() -> Result<()> {
                 .arg(".")
                 .spawn()
             {
-                Err(why) => panic!("couldn't spawn docker: {}", why),
+                Err(why) => {
+                    println!("couldn't spawn docker: {}", why);
+                    process::exit(1);
+                }
                 Ok(process) => process,
             };
 
