@@ -153,8 +153,6 @@ fn main() -> Result<()> {
                 .stdout(Stdio::piped())
                 .arg("build")
                 .arg(&tag)
-                .arg("-e")
-                .arg("USER=$USER")
                 .arg("-f-")
                 .arg(".")
                 .spawn()

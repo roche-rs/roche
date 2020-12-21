@@ -5,14 +5,32 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash --noprofile --norc -exo pipefail {0}
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: docker-practice/actions-setup-docker@master
         with:
           docker_channel: nightly
           # this value please see https://github.com/AkihiroSuda/moby-snapshot/releases
           docker_nightly_version: snapshot-20201008
-      - uses: icepuma/rust-action@master
+
+      - name: Run cargo fmt
+        run: |
+          cargo fmt --all -- --check
+      - uses: actions-rs/clippy-check@v1
         with:
-          args: cd tests && cargo fmt -- --check && cargo clippy -- -Dwarnings && cargo test
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features -- -Dwarnings
+
+      - name: Build
+        run:  cargo build
+        env:
+          USER: roche
+
+      - name: Run test
+        run: cargo test --tests
+        env:
+          USER: roche
