@@ -4,4 +4,4 @@ services:
   - docker
 
 script:
-  - cargo fmt --all -- --check && cargo test
+  - rustup component add rustfmt && cargo fmt --all -- --check && cargo test
