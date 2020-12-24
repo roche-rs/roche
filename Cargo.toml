@@ -1,0 +1,20 @@
+[package]
+name = "roche"
+version = "0.1.0"
+authors = ["Anthony Whalley <anton@venshare.com>"]
+edition = "2018"
+description = "A cli to build serverless rust applications"
+keywords = ["cargo", "docker", "caching", "dependencies"]
+categories = ["command-line-utilities"]
+repository = "https://github.com/roche-rs/roche"
+documentation = "https://docs.rs/roche"
+license = "Apache-2.0 OR MIT"
+exclude = ["tests"]
+
+[dependencies]
+clap = "3.0.0-beta.2"
+cargo-generate = "0.5.1"
+anyhow = "1.0"
+
+[dev-dependencies]
+remove_dir_all = "0.5.3"
