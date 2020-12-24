@@ -1,0 +1,7 @@
+language: rust
+
+services:
+  - docker
+
+script:
+  - cargo fmt --all -- --check && cargo test
