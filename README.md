@@ -1,6 +1,8 @@
 # roche
 A cli for building serverless tide containers for [knative environments](https://knative.dev/docs/knative-offerings/).
 
+[![Build Status](https://travis-ci.com/roche-rs/roche.svg?branch=main)](https://travis-ci.com/roche-rs/roche)
+
 ## introduction
 Services built with Rust have some fantastic runtime qualities for serverless applications:
 

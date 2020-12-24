@@ -3,5 +3,7 @@ language: rust
 services:
   - docker
 
+before_install:
+  - rustup component add rustfmt
 script:
-  - rustup component add rustfmt && cargo fmt --all -- --check && cargo test
+  -  cargo fmt --all -- --check && cargo test
