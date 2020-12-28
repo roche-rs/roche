@@ -6,4 +6,4 @@ services:
 before_install:
   - rustup component add rustfmt
 script:
-  -  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin && cargo fmt --all -- --check && cargo test
+  -  echo "$DOCKER_PASSWORD" | docker login quay.io -u "$DOCKER_USERNAME" --password-stdin && cargo fmt --all -- --check && cargo test
