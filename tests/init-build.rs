@@ -90,6 +90,47 @@ fn generate_build_project() {
     remove_dir_all(path).unwrap();
 }
 
+#[test]
+fn generate_build_project_no_tag() {
+    let path = root("generate_build_project_no_tag");
+    if Path::new(&path).exists() {
+        remove_dir_all(&path).unwrap();
+    }
+    fs::create_dir_all(&path).expect(&format!("couldn't create {:?} directory", path.display()));
+    assert!(env::set_current_dir(&path).is_ok());
+
+    let mut me = env::current_exe().expect("couldn't find current exe");
+    me.pop();
+    me.pop();
+    me.push("roche");
+
+    let mut init_cmd = Command::new(&me)
+        .arg("init")
+        .arg("default")
+        .arg("-n")
+        .arg("generate_build_project_no_tag")
+        .current_dir(&path)
+        .spawn()
+        .unwrap();
+    assert!(init_cmd.wait().is_ok());
+
+    let function_folder = format!("{}/{}", path.display(), "generate-build-project-no-tag");
+    println!("{}", function_folder);
+    assert!(env::set_current_dir(&function_folder).is_ok());
+
+    //assert!(Path::new(&function_file).exists());
+
+    let mut build_cmd = Command::new(&me)
+        .arg("build")
+        .current_dir(&function_folder)
+        .spawn()
+        .unwrap();
+
+    assert!(build_cmd.wait().is_ok());
+
+    remove_dir_all(path).unwrap();
+}
+
 fn root(name: &str) -> PathBuf {
     let idx = IDX.with(|x| *x);
 

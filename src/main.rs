@@ -31,6 +31,101 @@ pub struct PublicArgs {
     pub verbose: bool,
 }
 
+pub fn generateimagetag() -> Option<String> {
+    let fullpath = match env::current_dir() {
+        Err(why) => panic!("Couldn't get current dir {}", why),
+        Ok(s) => s,
+    };
+    let pieces: Vec<&str> = fullpath
+        .to_str()
+        .unwrap()
+        .split(std::path::MAIN_SEPARATOR)
+        .collect();
+    let mut dir = pieces[pieces.len() - 1];
+    if dir == "src" {
+        dir = pieces[pieces.len() - 2];
+    }
+
+    match getlogin() {
+        Some(l) => {
+            let img = format!("{}/{}", l, dir);
+            Some(img)
+        }
+        None => None,
+    }
+}
+
+pub fn getdockerlogin() -> Option<String> {
+    let process = match Command::new("docker")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .arg("build")
+        .arg("info")
+        .spawn()
+    {
+        Err(why) => {
+            println!("couldn't spawn docker: {}", why);
+            process::exit(1);
+        }
+        Ok(process) => process,
+    };
+    let mut s = String::new();
+    let mut username: String = String::new();
+
+    match process.stdout.unwrap().read_to_string(&mut s) {
+        Err(why) => panic!("couldn't read docker stdout: {}", why),
+        Ok(_) => {
+            for line in s.lines() {
+                if line.contains("Username") {
+                    let vusername = line.split_whitespace();
+                    username = vusername.last().unwrap_or_default().to_string();
+                }
+            }
+        }
+    };
+    if username == "" {
+        None
+    } else {
+        Some(username)
+    }
+}
+
+pub fn getlogin() -> Option<String> {
+    let login = match getdockerlogin() {
+        Some(s) => Some(s),
+        None => getpodmanlogin(),
+    };
+    login
+}
+
+pub fn getpodmanlogin() -> Option<String> {
+    let podman = match Command::new("podman")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .arg("login")
+        .arg("--get-login")
+        .spawn()
+    {
+        Err(why) => {
+            println!("No Username found with docker or podman: {}", why);
+            process::exit(1);
+        }
+        Ok(process) => process,
+    };
+    let mut podmanoutput = String::new();
+    let username;
+    match podman.stdout.unwrap().read_to_string(&mut podmanoutput) {
+        Err(why) => panic!("couldn't read podman stdout: {}", why),
+        Ok(_) => {
+            username = podmanoutput.lines().next().unwrap_or_default().to_string();
+        }
+    }
+    if username == "" {
+        None
+    } else {
+        Some(username)
+    }
+}
 fn main() -> Result<()> {
     const FUNCTION: &str = include_str!("template/function.rs");
     const _RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
@@ -105,7 +200,7 @@ fn main() -> Result<()> {
                     .takes_value(true)
                     .short('t')
                     .long("tag")
-                    .required(true)
+                    .required(false)
             )
         )
         .get_matches();
@@ -130,7 +225,22 @@ fn main() -> Result<()> {
         }
 
         if let Some(build_matches) = matches.subcommand_matches("build") {
-            let tag = format!("-t{}", build_matches.value_of("tag").unwrap());
+            let mut tag = format!("-t{}", build_matches.value_of("tag").unwrap_or(""));
+
+            //let mut tag = build_matches.value_of("tag").unwrap_or("").to_string();
+
+            if tag == "-t" {
+                tag = match generateimagetag() {
+                    Some(s) => {
+                        println!("No tag provided usin {}", s);
+                        format!("-t{}", s)
+                    }
+                    None => {
+                        panic!("No tag provided and couldn't generate a tag. Please check you have logged into docker or podman")
+                    }
+                }
+            }
+
             let buildimage = build_matches
                 .value_of("buildimage")
                 .unwrap_or(dev_build_image);
