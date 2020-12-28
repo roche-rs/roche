@@ -59,7 +59,6 @@ pub fn getdockerlogin() -> Option<String> {
     let process = match Command::new("docker")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
-        .arg("build")
         .arg("info")
         .spawn()
     {
