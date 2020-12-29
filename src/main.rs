@@ -75,9 +75,11 @@ pub fn getdockerlogin() -> Option<String> {
         Err(why) => panic!("couldn't read docker stdout: {}", why),
         Ok(_) => {
             for line in s.lines() {
+                println!("{}", s);
                 if line.contains("Username") {
                     let vusername = line.split_whitespace();
                     username = vusername.last().unwrap_or_default().to_string();
+                    println!("FOUND USER NAME{}", username);
                 }
             }
         }
