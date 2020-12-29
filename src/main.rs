@@ -56,7 +56,6 @@ pub fn generateimagetag() -> Option<String> {
 }
 
 pub fn getdockerlogin() -> Option<String> {
-
     match env::var("DOCKER_USERNAME") {
         Ok(val) => return Some(val),
         Err(_e) => {
