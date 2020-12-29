@@ -31,7 +31,7 @@ pub struct PublicArgs {
     pub verbose: bool,
 }
 
-pub fn generateimagetag() -> Option<String> {
+pub fn generateimagetag(buildtype: String) -> Option<String> {
     let fullpath = match env::current_dir() {
         Err(why) => panic!("Couldn't get current dir {}", why),
         Ok(s) => s,
@@ -48,7 +48,7 @@ pub fn generateimagetag() -> Option<String> {
 
     match getlogin() {
         Some(l) => {
-            let img = format!("{}/{}", l, dir);
+            let img = format!("{}/{}{}", l, buildtype, dir);
             Some(img)
         }
         None => None,
@@ -134,9 +134,10 @@ pub fn getpodmanlogin() -> Option<String> {
 }
 fn main() -> Result<()> {
     const FUNCTION: &str = include_str!("template/function.rs");
-    const _RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
+    const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Local.Dockerfile");
     let dev_build_image = "quay.io/roche/dev-default:1.1.0";
+    let release_build_image = "quay.io/roche/default:1.1.0";
     let runtime_image = "quay.io/roche/alpine:3.12";
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
@@ -184,12 +185,37 @@ fn main() -> Result<()> {
             )
             ,
         ).subcommand(
-            App::new("build").about("Generates a project").arg(
+            App::new("build").about("Builds a development image").arg(
                 Arg::new("buildimage")
                     .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
                     .takes_value(true)
                     .short('b')
-                    .long("builder")
+                    .long("buildimage")
+                    .required(false)
+            )
+            .arg(
+                Arg::new("runtimeimage")
+                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine:3.12")
+                    .takes_value(true)
+                    .short('r')
+                    .long("runtime")
+                    .required(false)
+            )
+            .arg(
+                Arg::new("tag")
+                    .about("tag for the build.")
+                    .takes_value(true)
+                    .short('t')
+                    .long("tag")
+                    .required(false)
+            )
+        ).subcommand(
+            App::new("release").about("Builds a releasae image").arg(
+                Arg::new("buildimage")
+                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
+                    .takes_value(true)
+                    .short('b')
+                    .long("buildimage")
                     .required(false)
             )
             .arg(
@@ -236,9 +262,9 @@ fn main() -> Result<()> {
             //let mut tag = build_matches.value_of("tag").unwrap_or("").to_string();
 
             if tag == "-t" {
-                tag = match generateimagetag() {
+                tag = match generateimagetag("dev-".to_string()) {
                     Some(s) => {
-                        println!("No tag provided usin {}", s);
+                        println!("No tag provided using {}", s);
                         format!("-t{}", s)
                     }
                     None => {
@@ -292,6 +318,78 @@ fn main() -> Result<()> {
         }
 
         //
+    }
+    if matches.is_present("release") {
+        // Check we have a functions.rs to build.
+        let dirname = env::current_dir()?;
+
+        let functionlocation = format!("{}/functions.rs", dirname.display());
+        if !Path::new(&functionlocation).exists() {
+            let srcfunction = format!("{}/src/functions.rs", dirname.display());
+            if !Path::new(&srcfunction).exists() {
+                println!(
+                    "Cannot find functions.rs in the current folder or in src subfolder. Exiting"
+                );
+                process::exit(1);
+            } else {
+                let srcfolder = format!("{}/src", dirname.display());
+                let srcpath = Path::new(&srcfolder);
+                assert!(env::set_current_dir(&srcpath).is_ok());
+            }
+        }
+
+        if let Some(build_matches) = matches.subcommand_matches("build") {
+            let mut tag = format!("-t{}", build_matches.value_of("tag").unwrap_or(""));
+
+            //let mut tag = build_matches.value_of("tag").unwrap_or("").to_string();
+
+            if tag == "-t" {
+                tag = match generateimagetag("".to_string()) {
+                    Some(s) => {
+                        println!("No tag provided using {}", s);
+                        format!("-t{}", s)
+                    }
+                    None => {
+                        panic!("No tag provided and couldn't generate a tag. Please check you have logged into docker or podman")
+                    }
+                }
+            }
+
+            let buildimage = build_matches
+                .value_of("buildimage")
+                .unwrap_or(release_build_image);
+            let runtimeimage = build_matches
+                .value_of("buildimage")
+                .unwrap_or(runtime_image);
+            let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
+            tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
+
+            let process = match Command::new("docker")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .arg("build")
+                .arg(&tag)
+                .arg("-f-")
+                .arg(".")
+                .spawn()
+            {
+                Err(why) => {
+                    println!("couldn't spawn docker: {}", why);
+                    process::exit(1);
+                }
+                Ok(process) => process,
+            };
+
+            match process.stdin.unwrap().write_all(tmp_docker_file.as_bytes()) {
+                Err(why) => panic!("couldn't write to docker stdin: {}", why),
+                Ok(_) => println!("Roche: Sent file to builder for {}", &tag),
+            }
+            let mut s = String::new();
+            match process.stdout.unwrap().read_to_string(&mut s) {
+                Err(why) => panic!("couldn't read docker stdout: {}", why),
+                Ok(_) => print!("Roche: Build complete for {}\n{}", &tag, s),
+            }
+        }
     }
     if matches.is_present("init") {
         if let Some(init_matches) = matches.subcommand_matches("init") {
