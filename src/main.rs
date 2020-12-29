@@ -137,7 +137,7 @@ fn main() -> Result<()> {
     const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Local.Dockerfile");
     let dev_build_image = "quay.io/roche/dev-default:1.1.0";
-    let release_build_image = "quay.io/roche/default:1.1.0";
+    let release_build_image = "quay.io/roche/default:1.0.0";
     let runtime_image = "quay.io/roche/alpine:3.12";
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
@@ -210,7 +210,7 @@ fn main() -> Result<()> {
                     .required(false)
             )
         ).subcommand(
-            App::new("release").about("Builds a releasae image").arg(
+            App::new("release").about("Builds a release image").arg(
                 Arg::new("buildimage")
                     .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
                     .takes_value(true)
@@ -321,6 +321,7 @@ fn main() -> Result<()> {
     }
     if matches.is_present("release") {
         // Check we have a functions.rs to build.
+        println!("in release");
         let dirname = env::current_dir()?;
 
         let functionlocation = format!("{}/functions.rs", dirname.display());
@@ -338,7 +339,7 @@ fn main() -> Result<()> {
             }
         }
 
-        if let Some(build_matches) = matches.subcommand_matches("build") {
+        if let Some(build_matches) = matches.subcommand_matches("release") {
             let mut tag = format!("-t{}", build_matches.value_of("tag").unwrap_or(""));
 
             //let mut tag = build_matches.value_of("tag").unwrap_or("").to_string();
