@@ -2,7 +2,7 @@ use remove_dir_all::*;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::*;
-use std::{env, fs, thread, time};
+use std::{env, fs};
 
 #[cfg(test)]
 
