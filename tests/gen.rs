@@ -38,7 +38,6 @@ fn generate_docker_file_default() {
     assert!(df.contains("quay.io/roche/alpine:3.12"));
 
     remove_dir_all(path).unwrap();
-
 }
 
 #[test]
@@ -73,7 +72,6 @@ fn generate_docker_file_with_params() {
     assert!(df.contains("runtime/testcontainer"));
 
     remove_dir_all(path).unwrap();
-
 }
 
 fn root(name: &str) -> PathBuf {
