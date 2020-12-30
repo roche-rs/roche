@@ -54,9 +54,10 @@ Support for external libs will be added in the future probably through custome b
 
 2. Build the function image.
 ```
+$ docker login 
 $ roche build
 # optionally you can provide an image name
-$ roche build registry/namespace/devimagename:version
+$ roche build -t registry/namespace/devimagename:version
 ```
 
 3. If you would like to run the image use the standard docker commands
@@ -71,6 +72,7 @@ $ roche release registry/namespace/imagename:version
 
 5. Deploy to your favourite container based FaaS platform.
 ```
+$ docker push registry/namespace/imagename:version
 # knative
 $ kn service create roche-function --image registry/namespace/imagename:version
 # ibmcloud
