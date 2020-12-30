@@ -108,4 +108,4 @@ See the [Contribution Guide](CONTRIBUTING.md) for more details.
 
 Project generation features rely on the excellent [cargo generator project](https://crates.io/crates/cargo-generate)
 
-Insperation from Appsody https://github.com/appsody (end of life)
+Insperation from [Appsody](https://github.com/appsody) (end of life)
