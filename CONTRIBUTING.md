@@ -1,4 +1,4 @@
-# &lt;roche&gt; is an [OPEN Open Source Project](http://openopensource.org/)
+# roche is an [OPEN Open Source Project](http://openopensource.org/)
 
 -----------------------------------------
 

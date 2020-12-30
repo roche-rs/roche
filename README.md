@@ -105,3 +105,7 @@ See the [Contribution Guide](CONTRIBUTING.md) for more details.
 ## attributions
 
 <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+Project generation features rely on the excellent [cargo generator project](https://crates.io/crates/cargo-generate)
+
+Insperation from Appsody https://github.com/appsody (end of life)
