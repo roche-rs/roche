@@ -68,7 +68,7 @@ fn generate_docker_file_with_params() {
         Ok(s) => s,
         Err(e) => panic!("Read Dockerfile failed: {}", e),
     };
-    assert!(df.contains("uild/testimage"));
+    assert!(df.contains("build/testimage"));
     assert!(df.contains("runtime/testcontainer"));
 
     remove_dir_all(path).unwrap();
