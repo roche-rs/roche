@@ -31,6 +31,8 @@ See the [Architecture](https://github.com/roche-rs/roche/wiki/Architecture) page
 
 1. A [docker](https://docs.docker.com/get-docker/) or [podman](https://podman.io/getting-started/installation) environment on your local machine.
 
+1. A local [rust](https://rustup.rs/) installation.
+
 ## install
 
 ```
