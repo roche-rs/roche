@@ -234,6 +234,24 @@ fn main() -> Result<()> {
                     .long("tag")
                     .required(false)
             )
+        ).subcommand(
+            App::new("gen").about("Generates a release Dockerfile")
+            .arg(
+                Arg::new("buildimage")
+                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
+                    .takes_value(true)
+                    .short('b')
+                    .long("buildimage")
+                    .required(false)
+            )
+            .arg(
+                Arg::new("runtimeimage")
+                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine:3.12")
+                    .takes_value(true)
+                    .short('r')
+                    .long("runtime")
+                    .required(false)
+            )
         )
         .get_matches();
 
@@ -277,7 +295,7 @@ fn main() -> Result<()> {
                 .value_of("buildimage")
                 .unwrap_or(dev_build_image);
             let runtimeimage = build_matches
-                .value_of("buildimage")
+                .value_of("runtimeimage")
                 .unwrap_or(runtime_image);
             let mut tmp_docker_file = str::replace(LOCAL_BUILD, "DEV_BASE_IMAGE", buildimage);
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
@@ -360,7 +378,7 @@ fn main() -> Result<()> {
                 .value_of("buildimage")
                 .unwrap_or(release_build_image);
             let runtimeimage = build_matches
-                .value_of("buildimage")
+                .value_of("runtimeimage")
                 .unwrap_or(runtime_image);
             let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
@@ -468,6 +486,23 @@ fn main() -> Result<()> {
             }
         }
     }
-
+    if matches.is_present("gen") {
+        if let Some(build_matches) = matches.subcommand_matches("gen") {
+            let buildimage = build_matches
+                .value_of("buildimage")
+                .unwrap_or(release_build_image);
+            let runtimeimage = build_matches
+                .value_of("runtimeimage")
+                .unwrap_or(runtime_image);
+            let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
+            tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
+            if !Path::new("Dockerfile").exists() {
+                let mut file = File::create("Dockerfile")?;
+                file.write_all(tmp_docker_file.as_bytes())?;
+            } else {
+                println!("Dockerfile already exists refusing to overwrite it. Please delete it and try again.");
+            }
+        }
+    }
     Ok(())
 }

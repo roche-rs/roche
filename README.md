@@ -1,5 +1,6 @@
 # roche
-A cli for building serverless tide containers for [knative environments](https://knative.dev/docs/knative-offerings/).
+A cli for rapidly developing tide containers.
+Roche is intended to target [knative environments](https://knative.dev/docs/knative-offerings/). But it can also be used to build standard docker containers.
 
 [![Build Status](https://travis-ci.com/roche-rs/roche.svg?branch=main)](https://travis-ci.com/roche-rs/roche)
 
@@ -22,17 +23,12 @@ Once the base images are downloaded build times are around 5s for debug and 30s 
 
 ## pre-reqs
 
-1. A bash terminal 
-
-2. A docker environment on your local machine.
+1. A docker environment on your local machine.
 
 ## install
 
-roche is currently a bash script while we work out some of the ergonomics.
-To install just copy the [roche](https://github.com/No9/roche/blob/main/roche) file to a location in your $PATH.
-On *nix machines make sure it's executable by running:
 ```
-$ chmod +x roche
+$ cargo install roche
 ```
 
 ## usage
@@ -83,10 +79,7 @@ $ ibmcloud ce app create -n roche-function --image registry/namespace/imagename:
 
 ## notes
 
-If you would like to run the build process as part of a CI/CD chain then the following command will generate a `Dockerfile` to ship with the function.rs.
+If you would like to run the build process as part of a CI/CD chain then the following command will generate a `Dockerfile` to ship in the same folder as function.rs.
 ```
 $ roche gen
 ```
-
-A standard cargo lib project with tests is implemented in the examples/full directory. 
-This demonstrates the `roche build-test` command.
