@@ -1,10 +1,10 @@
 # roche
-A cli for rapidly developing tide containers.
-Roche is intended to target [knative environments](https://knative.dev/docs/knative-offerings/). But it can also be used to build standard docker containers.
+A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containers.
 
 [![Build Status](https://travis-ci.com/roche-rs/roche.svg?branch=main)](https://travis-ci.com/roche-rs/roche)
 
 ## introduction
+
 Services built with Rust have some fantastic runtime qualities for serverless applications:
 
 * low resource footprint 
@@ -20,6 +20,12 @@ roche addresses this short coming by providing a function as a service pattern f
 It leverages the [nesting feature of tide](https://github.com/http-rs/tide/blob/main/examples/nested.rs) so all that is required to be developed is a handler while the application infrastructure is provided by prebuilt docker containers.
 
 Once the base images are downloaded build times are around 5s for debug and 30s for Release.
+
+Roche is intended to target [knative environments](https://knative.dev/docs/knative-offerings/) but it can also be used to build standard docker containers. 
+
+See the [Architecture](https://github.com/roche-rs/roche/wiki/Architecture) page for details. 
+
+
 
 ## pre-reqs
 
@@ -85,5 +91,15 @@ If you would like to run the build process as part of a CI/CD chain then the fol
 ```
 $ roche gen
 ```
+
+## contribution
+
+roche is an **OPEN Open Source Project**. This means that:
+
+> Individuals making significant and valuable contributions are given commit-access to the project to contribute as they see fit. This project is more like an open wiki than a standard guarded open source project.
+
+See the [Contribution Guide](CONTRIBUTING.md) for more details.
+
+## attributions
 
 <div>Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
