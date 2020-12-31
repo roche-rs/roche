@@ -6,7 +6,7 @@ N.B. .env files are NOT supported in the release build as enviroment variables s
 ```
 $ roche build
 
-$ docker run -p 8080:8080 YOUR_USER/dev-json
+$ docker run -p 8080:8080 YOUR_USER/dev-env
 tide::log Logger started
     level Info
       Running server on: http://localhost:8080/
