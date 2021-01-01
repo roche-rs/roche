@@ -1,6 +1,10 @@
 # roche
 A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containers.
 
+* **Install - https://roche-rs.org/cli/index.html#command-line-tool**
+
+* **Get Started - https://roche-rs.org/tutorials/simple.html**
+
 <div align="center">
   <!-- Crates version -->
   <a href="https://crates.io/crates/roche">
