@@ -136,9 +136,9 @@ fn main() -> Result<()> {
     const FUNCTION: &str = include_str!("template/function.rs");
     const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Local.Dockerfile");
-    let dev_build_image = "quay.io/roche/dev-default:1.1.0";
-    let release_build_image = "quay.io/roche/default:1.0.0";
-    let runtime_image = "quay.io/roche/alpine:3.12";
+    let dev_build_image = "quay.io/roche/dev-default:1.2.0";
+    let release_build_image = "quay.io/roche/default:1.1.0";
+    let runtime_image = "quay.io/roche/alpine-libgcc:3.12";
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
 
@@ -187,7 +187,7 @@ fn main() -> Result<()> {
         ).subcommand(
             App::new("build").about("Builds a development image").arg(
                 Arg::new("buildimage")
-                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
+                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.1.0")
                     .takes_value(true)
                     .short('b')
                     .long("buildimage")
@@ -195,7 +195,7 @@ fn main() -> Result<()> {
             )
             .arg(
                 Arg::new("runtimeimage")
-                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine:3.12")
+                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine-libgcc:3.12")
                     .takes_value(true)
                     .short('r')
                     .long("runtime")
@@ -212,7 +212,7 @@ fn main() -> Result<()> {
         ).subcommand(
             App::new("release").about("Builds a release image").arg(
                 Arg::new("buildimage")
-                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
+                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.1.0")
                     .takes_value(true)
                     .short('b')
                     .long("buildimage")
@@ -220,7 +220,7 @@ fn main() -> Result<()> {
             )
             .arg(
                 Arg::new("runtimeimage")
-                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine:3.12")
+                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine-libgcc:3.12")
                     .takes_value(true)
                     .short('r')
                     .long("runtime")
@@ -238,7 +238,7 @@ fn main() -> Result<()> {
             App::new("gen").about("Generates a release Dockerfile")
             .arg(
                 Arg::new("buildimage")
-                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.0.0")
+                    .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.1.0")
                     .takes_value(true)
                     .short('b')
                     .long("buildimage")
@@ -246,7 +246,7 @@ fn main() -> Result<()> {
             )
             .arg(
                 Arg::new("runtimeimage")
-                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine:3.12")
+                    .about("baseimage to use. If not provided defaults to quay.io/roche/alpine-libgcc:3.12")
                     .takes_value(true)
                     .short('r')
                     .long("runtime")

@@ -34,8 +34,8 @@ fn generate_docker_file_default() {
         Ok(s) => s,
         Err(e) => panic!("Read Dockerfile failed: {}", e),
     };
-    assert!(df.contains("quay.io/roche/default:1.0.0"));
-    assert!(df.contains("quay.io/roche/alpine:3.12"));
+    assert!(df.contains("quay.io/roche/default:1.1.0"));
+    assert!(df.contains("quay.io/roche/alpine-libgcc:3.12"));
 
     remove_dir_all(path).unwrap();
 }
