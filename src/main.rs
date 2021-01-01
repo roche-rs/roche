@@ -89,7 +89,7 @@ pub fn getdockerlogin() -> Option<String> {
             }
         }
     };
-    if username == "" {
+    if username.is_empty() {
         None
     } else {
         Some(username)
@@ -97,11 +97,10 @@ pub fn getdockerlogin() -> Option<String> {
 }
 
 pub fn getlogin() -> Option<String> {
-    let login = match getdockerlogin() {
+    match getdockerlogin() {
         Some(s) => Some(s),
         None => getpodmanlogin(),
-    };
-    login
+    }
 }
 
 pub fn getpodmanlogin() -> Option<String> {
@@ -126,7 +125,7 @@ pub fn getpodmanlogin() -> Option<String> {
             username = podmanoutput.lines().next().unwrap_or_default().to_string();
         }
     }
-    if username == "" {
+    if username.is_empty() {
         None
     } else {
         Some(username)
