@@ -1,15 +1,30 @@
 # roche
 A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containers.
 
-* **Install - https://roche-rs.org/cli/index.html#command-line-tool**
+<div align="center">
+  <h4>
+    <a href="https://roche-rs.org/cli/index.html#command-line-tool">
+      Install
+    </a>
+    <span> | </span>
+    <a href="https://roche-rs.org/cli/index.html#command-line-tool">
+      Get Started
+    </a>
+    <span> | </span>
+    <a href="https://roche-rs.org/">
+      CLI Docs
+    </a>
+    <span> | </span>
+    <a href="https://github.com/roche-rs/roche/blob/main/CONTRIBUTING.md">
+      Contributing
+    </a>
+    <span> | </span>
+    <a href="https://discord.gg/x2gKzst">
+      Chat
+    </a>
+  </h4>
+</div>
 
-* **Get Started - https://roche-rs.org/tutorials/simple.html**
-
-* **CLI Docs - https://roche-rs.org/**
-
-* **Contributing - https://github.com/roche-rs/roche/blob/main/CONTRIBUTING.md**
-
-* **Chat - https://discord.gg/x2gKzst** 
 <div align="center">
   <!-- Crates version -->
   <a href="https://crates.io/crates/roche">
@@ -32,23 +47,7 @@ A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containe
       alt="Build Status" />
   </a>
 </div>
-<!--
-<div align="center">
-  <h3>
-    <a href="https://roche-rs.org/">
-      CLI Docs
-    </a>
-    <span> | </span>
-    <a href="https://github.com/roche-rs/roche/blob/main/CONTRIBUTING.md">
-      Contributing
-    </a>
-    <span> | </span>
-    <a href="https://discord.gg/x2gKzst">
-      Chat
-    </a>
-  </h3>
-</div>
--->
+
 ## introduction
 
 Services built with Rust have some fantastic runtime qualities for serverless applications:
