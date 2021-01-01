@@ -1,5 +1,5 @@
 FROM DEV_BASE_IMAGE as builder
-COPY . /app-build/src/app/
+COPY . /app-build/src/
 RUN cargo build
 FROM RUNTIME_IMAGE
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser

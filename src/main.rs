@@ -135,9 +135,10 @@ pub fn getpodmanlogin() -> Option<String> {
 fn main() -> Result<()> {
     const FUNCTION: &str = include_str!("template/function.rs");
     const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
-    const LOCAL_BUILD: &str = include_str!("template/Local.Dockerfile");
-    let dev_build_image = "quay.io/roche/dev-default:1.2.0";
-    let release_build_image = "quay.io/roche/default:1.1.0";
+    const LOCAL_BUILD: &str = include_str!("template/Dev.Dockerfile");
+    const _TEST_BUILD: &str = include_str!("template/Libtest.Dockerfile");
+    let dev_build_image = "quay.io/roche/dev-default:1.3.0";
+    let release_build_image = "quay.io/roche/default:1.2.0";
     let runtime_image = "quay.io/roche/alpine-libgcc:3.12";
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
