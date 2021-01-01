@@ -5,6 +5,11 @@ A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containe
 
 * **Get Started - https://roche-rs.org/tutorials/simple.html**
 
+* **CLI Docs - https://roche-rs.org/**
+
+* **Contributing - https://github.com/roche-rs/roche/blob/main/CONTRIBUTING.md**
+
+* **Chat - https://discord.gg/x2gKzst** 
 <div align="center">
   <!-- Crates version -->
   <a href="https://crates.io/crates/roche">
@@ -27,7 +32,7 @@ A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containe
       alt="Build Status" />
   </a>
 </div>
-
+<!--
 <div align="center">
   <h3>
     <a href="https://roche-rs.org/">
@@ -43,7 +48,7 @@ A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containe
     </a>
   </h3>
 </div>
-
+-->
 ## introduction
 
 Services built with Rust have some fantastic runtime qualities for serverless applications:
