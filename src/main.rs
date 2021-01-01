@@ -275,7 +275,7 @@ fn main() -> Result<()> {
             )
         )
         .get_matches();
-    
+
     if matches.is_present("build") {
         // Check we have a functions.rs to build.
         let dirname = env::current_dir()?;
@@ -377,13 +377,11 @@ fn main() -> Result<()> {
             }
         }
         let dirname = env::current_dir()?;
-        let testlocation = format!("{}/lib.rs", dirname.display());        
+        let testlocation = format!("{}/lib.rs", dirname.display());
         if !Path::new(&testlocation).exists() {
-                println!(
-                    "Cannot find lib.rs in the src folder. Exiting"
-                );
-                process::exit(1);
-        } 
+            println!("Cannot find lib.rs in the src folder. Exiting");
+            process::exit(1);
+        }
 
         if let Some(build_matches) = matches.subcommand_matches("test") {
             let mut tag = format!("-t{}", build_matches.value_of("tag").unwrap_or(""));
