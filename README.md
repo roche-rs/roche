@@ -1,7 +1,44 @@
 # roche
 A cli for rapidly developing [tide](https://github.com/http-rs/tide) in containers.
 
-[![Build Status](https://travis-ci.com/roche-rs/roche.svg?branch=main)](https://travis-ci.com/roche-rs/roche)
+<div align="center">
+  <!-- Crates version -->
+  <a href="https://crates.io/crates/roche">
+    <img src="https://img.shields.io/crates/v/roche.svg?style=flat-square"
+    alt="Crates.io version" />
+  </a>
+  <!-- Downloads -->
+  <a href="https://crates.io/crates/roche">
+    <img src="https://img.shields.io/crates/d/roche.svg?style=flat-square"
+      alt="Download" />
+  </a>
+  <!-- docs.rs docs -->
+  <a href="https://roche-rs.org/">
+    <img src="https://img.shields.io/badge/docs-latest-blue.svg?style=flat-square"
+      alt="docs.rs docs" />
+  </a>
+  <!-- Build status-->
+  <a href="https://travis-ci.com/roche-rs/roche/">
+    <img src="https://travis-ci.com/roche-rs/roche.svg?branch=main"
+      alt="Build Status" />
+  </a>
+</div>
+
+<div align="center">
+  <h3>
+    <a href="https://roche-rs.org/">
+      CLI Docs
+    </a>
+    <span> | </span>
+    <a href="https://github.com/roche-rs/roche/blob/main/CONTRIBUTING.md">
+      Contributing
+    </a>
+    <span> | </span>
+    <a href="https://discord.gg/x2gKzst">
+      Chat
+    </a>
+  </h3>
+</div>
 
 ## introduction
 
