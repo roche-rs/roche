@@ -137,9 +137,9 @@ fn main() -> Result<()> {
     const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Dev.Dockerfile");
     const TEST_BUILD: &str = include_str!("template/Libtest.Dockerfile");
-    let dev_build_image = "quay.io/roche/dev-default:1.3.0";
-    let test_build_image = "quay.io/roche/dev-default:1.3.0";
-    let release_build_image = "quay.io/roche/default:1.2.0";
+    let dev_build_image = "quay.io/roche/dev-default:1.4.0";
+    let test_build_image = "quay.io/roche/dev-default:1.4.0";
+    let release_build_image = "quay.io/roche/default:1.4.0";
     let runtime_image = "quay.io/roche/alpine-libgcc:3.12";
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
