@@ -136,8 +136,9 @@ fn main() -> Result<()> {
     const FUNCTION: &str = include_str!("template/function.rs");
     const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Dev.Dockerfile");
-    const _TEST_BUILD: &str = include_str!("template/Libtest.Dockerfile");
+    const TEST_BUILD: &str = include_str!("template/Libtest.Dockerfile");
     let dev_build_image = "quay.io/roche/dev-default:1.3.0";
+    let test_build_image = "quay.io/roche/dev-default:1.3.0";
     let release_build_image = "quay.io/roche/default:1.2.0";
     let runtime_image = "quay.io/roche/alpine-libgcc:3.12";
     let default_project = "https://github.com/roche-rs/default";
@@ -210,7 +211,26 @@ fn main() -> Result<()> {
                     .long("tag")
                     .required(false)
             )
-        ).subcommand(
+        )
+        .subcommand(
+            App::new("test").about("Runs the lib tests in an image").arg(
+                Arg::new("libtestimage")
+                    .about("Lib test image to use. If not provided defaults to quay.io/roche/default:1.2.0")
+                    .takes_value(true)
+                    .short('l')
+                    .long("libtestimage")
+                    .required(false)
+            )
+            .arg(
+                Arg::new("tag")
+                    .about("tag for the test run.")
+                    .takes_value(true)
+                    .short('t')
+                    .long("tag")
+                    .required(false)
+            )
+        )
+        .subcommand(
             App::new("release").about("Builds a release image").arg(
                 Arg::new("buildimage")
                     .about("buildimage to use. If not provided defaults to quay.io/roche/default:1.1.0")
@@ -255,7 +275,7 @@ fn main() -> Result<()> {
             )
         )
         .get_matches();
-
+    
     if matches.is_present("build") {
         // Check we have a functions.rs to build.
         let dirname = env::current_dir()?;
@@ -304,7 +324,7 @@ fn main() -> Result<()> {
                 tmp_docker_file = str::replace(
                     tmp_docker_file.as_str(),
                     "INCLUDE_ENV",
-                    "app-build/src/app/.env*",
+                    "app-build/src/.env*",
                 );
             } else {
                 tmp_docker_file = str::replace(tmp_docker_file.as_str(), "INCLUDE_ENV ", "");
@@ -338,6 +358,93 @@ fn main() -> Result<()> {
 
         //
     }
+    if matches.is_present("test") {
+        // Check we have a functions.rs to test.
+        let dirname = env::current_dir()?;
+
+        let functionlocation = format!("{}/functions.rs", dirname.display());
+        if !Path::new(&functionlocation).exists() {
+            let srcfunction = format!("{}/src/functions.rs", dirname.display());
+            if !Path::new(&srcfunction).exists() {
+                println!(
+                    "Cannot find functions.rs in the current folder or in src subfolder. Exiting"
+                );
+                process::exit(1);
+            } else {
+                let srcfolder = format!("{}/src", dirname.display());
+                let srcpath = Path::new(&srcfolder);
+                assert!(env::set_current_dir(&srcpath).is_ok());
+            }
+        }
+        let dirname = env::current_dir()?;
+        let testlocation = format!("{}/lib.rs", dirname.display());        
+        if !Path::new(&testlocation).exists() {
+                println!(
+                    "Cannot find lib.rs in the src folder. Exiting"
+                );
+                process::exit(1);
+        } 
+
+        if let Some(build_matches) = matches.subcommand_matches("test") {
+            let mut tag = format!("-t{}", build_matches.value_of("tag").unwrap_or(""));
+
+            //let mut tag = build_matches.value_of("tag").unwrap_or("").to_string();
+
+            if tag == "-t" {
+                tag = match generateimagetag("test-".to_string()) {
+                    Some(s) => {
+                        println!("No tag provided using {}", s);
+                        format!("-t{}", s)
+                    }
+                    None => {
+                        panic!("No tag provided and couldn't generate a tag. Please check you have logged into docker or podman")
+                    }
+                }
+            }
+
+            let testimage = build_matches
+                .value_of("libtestimage")
+                .unwrap_or(test_build_image);
+            let mut tmp_docker_file = str::replace(TEST_BUILD, "TEST_BASE_IMAGE", testimage);
+            if Path::new(".env").exists() {
+                tmp_docker_file = str::replace(
+                    tmp_docker_file.as_str(),
+                    "INCLUDE_ENV",
+                    "app-build/src/.env*",
+                );
+            } else {
+                tmp_docker_file = str::replace(tmp_docker_file.as_str(), "INCLUDE_ENV ", "");
+            }
+            let process = match Command::new("docker")
+                .stdin(Stdio::piped())
+                .stdout(Stdio::piped())
+                .arg("build")
+                .arg(&tag)
+                .arg("-f-")
+                .arg(".")
+                .spawn()
+            {
+                Err(why) => {
+                    println!("couldn't spawn docker: {}", why);
+                    process::exit(1);
+                }
+                Ok(process) => process,
+            };
+
+            match process.stdin.unwrap().write_all(tmp_docker_file.as_bytes()) {
+                Err(why) => panic!("couldn't write to docker stdin: {}", why),
+                Ok(_) => println!("Roche: Sent file to builder for {}", &tag),
+            }
+            let mut s = String::new();
+            match process.stdout.unwrap().read_to_string(&mut s) {
+                Err(why) => panic!("couldn't read docker stdout: {}", why),
+                Ok(_) => print!("Roche: Build complete for {}\n{}", &tag, s),
+            }
+        }
+
+        //
+    }
+
     if matches.is_present("release") {
         // Check we have a functions.rs to build.
         println!("in release");
