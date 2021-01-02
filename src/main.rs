@@ -1,6 +1,7 @@
 use anyhow::Result;
 use cargo_generate::{generate, Args};
 use clap::{App, Arg};
+use dotenv;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
@@ -136,10 +137,26 @@ fn main() -> Result<()> {
     const RELEASE_BUILD: &str = include_str!("template/Release.Dockerfile");
     const LOCAL_BUILD: &str = include_str!("template/Dev.Dockerfile");
     const TEST_BUILD: &str = include_str!("template/Libtest.Dockerfile");
-    let dev_build_image = "quay.io/roche/dev-default:1.4.0";
-    let test_build_image = "quay.io/roche/dev-default:1.4.0";
-    let release_build_image = "quay.io/roche/default:1.4.0";
-    let runtime_image = "quay.io/roche/alpine-libgcc:3.12";
+
+    let dirname = env::current_dir().unwrap();
+    let env_src_location = format!("{}/src/.rocherc", dirname.display());
+    if Path::new(&env_src_location).exists() {
+        dotenv::from_path(env_src_location).unwrap();
+    }
+
+    let env_top_location = format!("{}/.rocherc", dirname.display());
+    if Path::new(&env_top_location).exists() {
+        dotenv::from_path(env_top_location).unwrap();
+    }
+
+    let dev_build_image =
+        env::var("dev_build_image").unwrap_or("quay.io/roche/dev-default:1.4.0".to_string());
+    let test_build_image =
+        env::var("test_build_image").unwrap_or("quay.io/roche/dev-default:1.4.0".to_string());
+    let release_build_image =
+        env::var("release_build_image").unwrap_or("quay.io/roche/default:1.4.0".to_string());
+    let runtime_image =
+        env::var("runtime_image").unwrap_or("quay.io/roche/alpine-libgcc:3.12".to_string());
     let default_project = "https://github.com/roche-rs/default";
     let mongodb_project = "https://github.com/roche-rs/mongodb";
 
@@ -313,10 +330,10 @@ fn main() -> Result<()> {
 
             let buildimage = build_matches
                 .value_of("buildimage")
-                .unwrap_or(dev_build_image);
+                .unwrap_or(dev_build_image.as_str());
             let runtimeimage = build_matches
                 .value_of("runtimeimage")
-                .unwrap_or(runtime_image);
+                .unwrap_or(runtime_image.as_str());
             let mut tmp_docker_file = str::replace(LOCAL_BUILD, "DEV_BASE_IMAGE", buildimage);
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
             if Path::new(".env").exists() {
@@ -401,7 +418,7 @@ fn main() -> Result<()> {
 
             let testimage = build_matches
                 .value_of("libtestimage")
-                .unwrap_or(test_build_image);
+                .unwrap_or(test_build_image.as_str());
             let mut tmp_docker_file = str::replace(TEST_BUILD, "TEST_BASE_IMAGE", testimage);
             if Path::new(".env").exists() {
                 tmp_docker_file = str::replace(
@@ -438,8 +455,6 @@ fn main() -> Result<()> {
                 Ok(_) => print!("Roche: Build complete for {}\n{}", &tag, s),
             }
         }
-
-        //
     }
 
     if matches.is_present("release") {
@@ -481,10 +496,10 @@ fn main() -> Result<()> {
 
             let buildimage = build_matches
                 .value_of("buildimage")
-                .unwrap_or(release_build_image);
+                .unwrap_or(release_build_image.as_str());
             let runtimeimage = build_matches
                 .value_of("runtimeimage")
-                .unwrap_or(runtime_image);
+                .unwrap_or(runtime_image.as_str());
             let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
 
@@ -541,18 +556,26 @@ fn main() -> Result<()> {
                     generate(args)?
                 }
                 "mongodb" => {
-                    //let branch = String::from("main").unwrap();
-                    let args_exposed: PublicArgs = PublicArgs {
-                        git: mongodb_project.to_string(),
-                        branch: Some(String::from("main")),
-                        name: None,
-                        force: true,
-                        verbose: true,
+                    let name = init_matches.value_of("name").map(ToOwned::to_owned);
+                    let branch = match init_matches.value_of("branch").map(ToOwned::to_owned) {
+                        Some(b) => b,
+                        None => String::from("main"),
                     };
 
-                    let _args: Args = unsafe { std::mem::transmute(args_exposed) };
-                    println!("MONGODB TEMPLATE NOT IMPLEMENTED")
-                    //generate(args)?
+                    let force: bool = init_matches.value_of_t("force").unwrap_or(false);
+                    let verbose: bool = init_matches.value_of_t("verbose").unwrap_or(false);
+
+                    let args_exposed: PublicArgs = PublicArgs {
+                        git: mongodb_project.to_string(),
+                        branch: Some(branch),
+                        name,
+                        force,
+                        verbose,
+                    };
+
+                    let args: Args = unsafe { std::mem::transmute(args_exposed) };
+
+                    generate(args)?
                 }
                 &_ => {
                     if init_matches
@@ -595,10 +618,10 @@ fn main() -> Result<()> {
         if let Some(build_matches) = matches.subcommand_matches("gen") {
             let buildimage = build_matches
                 .value_of("buildimage")
-                .unwrap_or(release_build_image);
+                .unwrap_or(release_build_image.as_str());
             let runtimeimage = build_matches
                 .value_of("runtimeimage")
-                .unwrap_or(runtime_image);
+                .unwrap_or(runtime_image.as_str());
             let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
             if !Path::new("Dockerfile").exists() {
