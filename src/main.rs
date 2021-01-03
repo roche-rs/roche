@@ -292,6 +292,11 @@ fn main() -> Result<()> {
         )
         .get_matches();
 
+    match matches.subcommand_name() {
+        None => println!("No subcommand was used - try 'roche help'"),
+        _ => println!("Some other subcommand was used - try 'roche help'"),
+    };
+
     if matches.is_present("build") {
         // Check we have a functions.rs to build.
         let dirname = env::current_dir()?;
