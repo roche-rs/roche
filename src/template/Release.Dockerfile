@@ -1,6 +1,7 @@
 FROM BASE_IMAGE as builder
 COPY functions.rs /app-build/src
 COPY lib.rs /app-build/src
+COPY .env /app-build/src
 RUN cargo build --release && cargo test --lib --release 
 FROM RUNTIME_IMAGE
 RUN addgroup -S rocheuser && adduser -S rocheuser -G rocheuser

@@ -161,6 +161,9 @@ fn main() -> Result<()> {
     let mongodb_project = "https://github.com/roche-rs/mongodb";
 
     let matches = App::new("roche")
+    .version("0.3.1")
+    .author("Anton Whalley. <anton@venshare.com>")
+    .about("A tool for building rust http and event services using containers")
         .subcommand(
             App::new("init").about("Generates a project").arg(
                 Arg::new("template")
@@ -294,7 +297,7 @@ fn main() -> Result<()> {
 
     match matches.subcommand_name() {
         None => println!("No subcommand was used - try 'roche help'"),
-        _ => println!("Some other subcommand was used - try 'roche help'"),
+        _ => {}
     };
 
     if matches.is_present("build") {
