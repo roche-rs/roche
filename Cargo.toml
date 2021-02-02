@@ -1,6 +1,6 @@
 [package]
 name = "roche"
-version = "0.3.2"
+version = "0.3.3"
 authors = ["Anthony Whalley <anton@venshare.com>"]
 edition = "2018"
 description = "A cli to build serverless rust applications"

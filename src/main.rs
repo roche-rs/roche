@@ -654,6 +654,22 @@ fn main() -> Result<()> {
                 .unwrap_or(runtime_image.as_str());
             let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
+            if Path::new("lib.rs").exists() {
+                tmp_docker_file = str::replace(
+                    tmp_docker_file.as_str(),
+                    "#LIB_RS",
+                    "COPY lib.rs /app-build/src",
+                );
+                tmp_docker_file = str::replace(
+                    tmp_docker_file.as_str(),
+                    "#TEST",
+                    "RUN cargo test --lib --release",
+                );
+            }
+            if Path::new(".env").exists() {
+                tmp_docker_file =
+                    str::replace(tmp_docker_file.as_str(), "#ENV", "COPY .env /app-build/src");
+            }
             if !Path::new("Dockerfile").exists() {
                 let mut file = File::create("Dockerfile")?;
                 file.write_all(tmp_docker_file.as_bytes())?;
