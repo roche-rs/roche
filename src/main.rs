@@ -52,7 +52,10 @@ pub fn generateimagetag(buildtype: String) -> Option<String> {
             let img = format!("{}/{}{}", l, buildtype, dir);
             Some(img)
         }
-        None => None,
+        None => {
+            let img = format!("{}{}", buildtype, dir);
+            Some(img)
+        }
     }
 }
 
@@ -508,7 +511,26 @@ fn main() -> Result<()> {
             let runtimeimage = build_matches
                 .value_of("runtimeimage")
                 .unwrap_or(runtime_image.as_str());
+
             let mut tmp_docker_file = str::replace(RELEASE_BUILD, "BASE_IMAGE", buildimage);
+
+            if Path::new("lib.rs").exists() {
+                tmp_docker_file = str::replace(
+                    tmp_docker_file.as_str(),
+                    "#LIB_RS",
+                    "COPY lib.rs /app-build/src",
+                );
+                tmp_docker_file = str::replace(
+                    tmp_docker_file.as_str(),
+                    "#TEST",
+                    "RUN cargo test --lib --release",
+                );
+            }
+            if Path::new(".env").exists() {
+                tmp_docker_file =
+                    str::replace(tmp_docker_file.as_str(), "#ENV", "COPY .env /app-build/src");
+            }
+
             tmp_docker_file = str::replace(tmp_docker_file.as_str(), "RUNTIME_IMAGE", runtimeimage);
 
             let process = match Command::new("docker")
