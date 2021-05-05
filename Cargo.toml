@@ -13,9 +13,9 @@ exclude = ["tests"]
 
 [dependencies]
 clap = "3.0.0-beta.2"
-cargo-generate = "0.5.1"
+cargo-generate = "0.6.1"
 anyhow = "1.0"
 dotenv = "0.15.0"
 
 [dev-dependencies]
-remove_dir_all = "0.5.3"
+remove_dir_all = "0.7.0"
