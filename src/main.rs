@@ -32,6 +32,26 @@ pub struct PublicArgs {
     pub verbose: bool,
 }
 
+impl Into<Args> for PublicArgs {
+    fn into(self) -> Args {
+        Args {
+            git: Some(self.git),
+            branch: self.branch,
+            name: self.name,
+            force: self.force,
+            verbose: self.verbose,
+            vcs: cargo_generate::Vcs::Git,
+
+            // cargo_generate::Args doesn't implement Default
+            list_favorites: false,
+            favorite: None,
+            template_values_file: None,
+            silent: false,
+            config: None,
+        }
+    }
+}
+
 pub fn generateimagetag(buildtype: String) -> Option<String> {
     let fullpath = match env::current_dir() {
         Err(why) => panic!("Couldn't get current dir {}", why),
@@ -581,7 +601,7 @@ fn main() -> Result<()> {
                         verbose,
                     };
 
-                    let args: Args = unsafe { std::mem::transmute(args_exposed) };
+                    let args: Args = args_exposed.into();
 
                     generate(args)?
                 }
@@ -603,7 +623,7 @@ fn main() -> Result<()> {
                         verbose,
                     };
 
-                    let args: Args = unsafe { std::mem::transmute(args_exposed) };
+                    let args: Args = args_exposed.into();
 
                     generate(args)?
                 }
@@ -632,7 +652,7 @@ fn main() -> Result<()> {
                             force,
                             verbose,
                         };
-                        let args: Args = unsafe { std::mem::transmute(args_exposed) };
+                        let args: Args = args_exposed.into();
 
                         generate(args)?
                     } else {
